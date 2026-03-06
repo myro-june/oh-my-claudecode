@@ -100,5 +100,16 @@ describe('runtime v2 startup inbox dispatch', () => {
       '%2',
       expect.stringContaining('.omc/state/team/dispatch-team/workers/worker-1/inbox.md'),
     );
+    expect(mocks.spawnWorkerInPane).toHaveBeenCalledWith(
+      'dispatch-session',
+      '%2',
+      expect.objectContaining({
+        envVars: expect.objectContaining({
+          OMC_TEAM_WORKER: 'dispatch-team/worker-1',
+          OMC_TEAM_STATE_ROOT: join(cwd, '.omc', 'state', 'team', 'dispatch-team'),
+          OMC_TEAM_LEADER_CWD: cwd,
+        }),
+      }),
+    );
   });
 });

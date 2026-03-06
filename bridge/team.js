@@ -1553,6 +1553,21 @@ function readTeamStateRootFromFile(path) {
 }
 function stateRootToWorkingDirectory(stateRoot2) {
   const absolute = resolvePath(stateRoot2);
+  const normalized = absolute.replaceAll("\\", "/");
+  for (const marker of ["/.omc/state/team/", "/.omx/state/team/"]) {
+    const idx = normalized.lastIndexOf(marker);
+    if (idx >= 0) {
+      const workspaceRoot = absolute.slice(0, idx);
+      return workspaceRoot || dirname7(dirname7(dirname7(dirname7(absolute))));
+    }
+  }
+  for (const marker of ["/.omc/state", "/.omx/state"]) {
+    const idx = normalized.lastIndexOf(marker);
+    if (idx >= 0) {
+      const workspaceRoot = absolute.slice(0, idx);
+      return workspaceRoot || dirname7(dirname7(absolute));
+    }
+  }
   return dirname7(dirname7(absolute));
 }
 function resolveTeamWorkingDirectoryFromMetadata(teamName, candidateCwd, workerContext) {

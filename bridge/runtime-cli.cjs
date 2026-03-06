@@ -3537,7 +3537,11 @@ async function spawnV2Worker(opts) {
   if (usePromptMode) {
     await composeInitialInbox(opts.teamName, opts.workerName, instruction, opts.cwd);
   }
-  const envVars = getWorkerEnv(opts.teamName, opts.workerName, opts.agentType);
+  const envVars = {
+    ...getWorkerEnv(opts.teamName, opts.workerName, opts.agentType),
+    OMC_TEAM_STATE_ROOT: teamStateRoot(opts.cwd, opts.teamName),
+    OMC_TEAM_LEADER_CWD: opts.cwd
+  };
   const resolvedBinaryPath = opts.resolvedBinaryPaths[opts.agentType] ?? resolveValidatedBinaryPath(opts.agentType);
   const modelForAgent = (() => {
     if (opts.agentType === "codex") {

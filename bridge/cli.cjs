@@ -22323,7 +22323,11 @@ async function spawnV2Worker(opts) {
   if (usePromptMode) {
     await composeInitialInbox(opts.teamName, opts.workerName, instruction, opts.cwd);
   }
-  const envVars = getWorkerEnv(opts.teamName, opts.workerName, opts.agentType);
+  const envVars = {
+    ...getWorkerEnv(opts.teamName, opts.workerName, opts.agentType),
+    OMC_TEAM_STATE_ROOT: teamStateRoot(opts.cwd, opts.teamName),
+    OMC_TEAM_LEADER_CWD: opts.cwd
+  };
   const resolvedBinaryPath = opts.resolvedBinaryPaths[opts.agentType] ?? resolveValidatedBinaryPath(opts.agentType);
   const modelForAgent = (() => {
     if (opts.agentType === "codex") {
@@ -62926,6 +62930,21 @@ function readTeamStateRootFromFile(path20) {
 }
 function stateRootToWorkingDirectory(stateRoot2) {
   const absolute = (0, import_node_path6.resolve)(stateRoot2);
+  const normalized = absolute.replaceAll("\\", "/");
+  for (const marker of ["/.omc/state/team/", "/.omx/state/team/"]) {
+    const idx = normalized.lastIndexOf(marker);
+    if (idx >= 0) {
+      const workspaceRoot = absolute.slice(0, idx);
+      return workspaceRoot || (0, import_node_path6.dirname)((0, import_node_path6.dirname)((0, import_node_path6.dirname)((0, import_node_path6.dirname)(absolute))));
+    }
+  }
+  for (const marker of ["/.omc/state", "/.omx/state"]) {
+    const idx = normalized.lastIndexOf(marker);
+    if (idx >= 0) {
+      const workspaceRoot = absolute.slice(0, idx);
+      return workspaceRoot || (0, import_node_path6.dirname)((0, import_node_path6.dirname)(absolute));
+    }
+  }
   return (0, import_node_path6.dirname)((0, import_node_path6.dirname)(absolute));
 }
 function resolveTeamWorkingDirectoryFromMetadata(teamName, candidateCwd, workerContext) {

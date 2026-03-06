@@ -138,7 +138,11 @@ async function spawnV2Worker(opts) {
         await composeInitialInbox(opts.teamName, opts.workerName, instruction, opts.cwd);
     }
     // Build env and launch command
-    const envVars = getModelWorkerEnv(opts.teamName, opts.workerName, opts.agentType);
+    const envVars = {
+        ...getModelWorkerEnv(opts.teamName, opts.workerName, opts.agentType),
+        OMC_TEAM_STATE_ROOT: teamStateRoot(opts.cwd, opts.teamName),
+        OMC_TEAM_LEADER_CWD: opts.cwd,
+    };
     const resolvedBinaryPath = opts.resolvedBinaryPaths[opts.agentType]
         ?? resolveValidatedBinaryPath(opts.agentType);
     // Resolve model from environment variables
